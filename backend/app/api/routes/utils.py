@@ -5,7 +5,12 @@ import time
 @router.get("/poc/report")
 async def generate_user_report(user_id: int, api_secret: str = "SUPER_SECRET_POC_KEY_12345"):
     """
-    POC endpoint to test CodeRabbit reviews
+    Return a proof-of-concept report for the mock user with ID 1.
+
+    Blocks the event loop for two seconds. For a known user, an incorrect
+    api_secret returns an Unauthorized error; a matching secret returns the
+    user data and the supplied secret as raw_token. The default secret matches.
+    An unknown user_id raises KeyError before the secret is checked.
     """
     # 1. Blocking call inside an async endpoint (Freezes FastAPI event loop)
     time.sleep(2)

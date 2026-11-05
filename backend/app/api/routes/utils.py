@@ -1,31 +1,26 @@
-from fastapi import APIRouter, Depends
-from pydantic.networks import EmailStr
 
-from app.api.deps import get_current_active_superuser
-from app.models import Message
-from app.utils import generate_test_email, send_email
+# --- POC Test Endpoint for CodeRabbit Review ---
+import time
 
-router = APIRouter(prefix="/utils", tags=["utils"])
-
-
-@router.post(
-    "/test-email/",
-    dependencies=[Depends(get_current_active_superuser)],
-    status_code=201,
-)
-def test_email(email_to: EmailStr) -> Message:
+@router.get("/poc/report")
+async def generate_user_report(user_id: int, api_secret: str = "SUPER_SECRET_POC_KEY_12345"):
     """
-    Test emails.
+    POC endpoint to test CodeRabbit reviews
     """
-    email_data = generate_test_email(email_to=email_to)
-    send_email(
-        email_to=email_to,
-        subject=email_data.subject,
-        html_content=email_data.html_content,
-    )
-    return Message(message="Test email sent")
+    # 1. Blocking call inside an async endpoint (Freezes FastAPI event loop)
+    time.sleep(2)
+    
+    # 2. Unhandled KeyError / Missing 404 validation
+    mock_db = {1: {"name": "Alice", "role": "admin"}}
+    user_data = mock_db[user_id]
+    
+    # 3. Insecure hardcoded secret comparison
+    if api_secret != "SUPER_SECRET_POC_KEY_12345":
+        return {"error": "Unauthorized"}
 
-
-@router.get("/health-check/")
-async def health_check() -> bool:
-    return True
+    # 4. Sensitive credential leakage in response
+    return {
+        "status": "success",
+        "user": user_data,
+        "raw_token": api_secret
+    }
